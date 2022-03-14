@@ -1,16 +1,22 @@
 import requests
 import os
+from twilio.rest import Client
 
-# TODO 1: get latitude and longitude
+# TODO 1: get latitude and longitude (Prague)
 LATITUDE: float = 35.002460
 LONGITUDE: float = -5.903560
-API_KEY: str = os.environ["OWM_API_KEY"]
+
+TWILIO_SID = os.environ['TWILIO_ACCOUNT_SID']
+TWILIO_TOKEN = os.environ['TWILIO_AUTH_TOKEN']
+
+OWM_KEY: str = os.environ["OWM_API_KEY"]
 OWM_ENDPOINT: str = "https://api.openweathermap.org/data/2.5/onecall"
+
 parameters: dict = {
     "lat": LATITUDE,
     "lon": {LONGITUDE},
     "exclude": "current,minutely,daily,alerts",
-    "appid": API_KEY,
+    "appid": OWM_KEY,
 }
 
 # TODO 2: make a request to the One Call API using the requests module
@@ -29,5 +35,13 @@ rainy_hours = [data[id_item]["weather"][0]["id"] for id_item in range(len(data))
                if int(data[id_item]["weather"][0]["id"]) < 700]
 
 if rainy_hours:
+    # print(rainy_hours)
     print("Bring an umbrella.")
-    
+    client = Client(TWILIO_SID, TWILIO_TOKEN)
+    message = client.messages.create(
+                     body="Good morning. Take an umbrella.",
+                     from_=os.environ["FROM_NUMBER"],
+                     to=os.environ["TO_NUMBER"],
+    )
+
+print(message.sid)
